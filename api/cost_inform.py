@@ -1,8 +1,9 @@
 import boto3
 import botocore
 import yfinance as yf
-import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
+from dateutil.relativedelta import relativedelta
+
 
 #pip install yfinance 필수!
 
@@ -14,30 +15,28 @@ def getCost(access_key_set,secret_key_set,region):
 
 
         now = datetime.now()
+        '''
         past = []
         past.append(str(now.year))
         past.append(str(now.month))
         past.append(str('01'))
         past_day = '-'.join(past)
+        '''
 
-        today = []
-        today.append(str(now.year))
-        today.append(str(now.month))
-        today.append(str(now.day))
-        to_day = '-'.join(today)
+        past_day = str(date.today() - relativedelta(months=1))
 
-        yesterday = []
-        yesterday.append(str(now.year))
-        yesterday.append(str(now.month))
-        yesterday.append(str(now.day - 1))
-        yester_day = '-'.join(yesterday)
+        to_day = str(date.today() - timedelta(hours=1))
+
+        yester_day = str(date.today() - timedelta(1))
+
 
         list_cos = []
         list_date = []
 
-        end_date = to_day
-        data = yf.download(['USDKRW=X'], start=past_day, end=end_date)
-        change = data['Close'][yester_day]
+
+        data = yf.download(['USDKRW=X'], start=past_day, end=yester_day)
+
+        change = data['Close'][-1]
 
         client = boto3.client(
             'ce',
